@@ -1,0 +1,23 @@
+{
+  "name": "wanductbot",
+  "version": "1.0.0",
+  "description": "A chat bot inspired by Supinic's 'Supibot'.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/notnotquinn/wanductbot.git"
+  },
+  "keywords": [
+    "twitch",
+    "chat-bot"
+  ],
+  "author": "Quinn T",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/notnotquinn/wanductbot/issues"
+  },
+  "homepage": "https://github.com/notnotquinn/wanductbot#readme"
+}
