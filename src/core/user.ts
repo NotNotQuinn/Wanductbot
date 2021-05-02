@@ -30,24 +30,32 @@ export class User {
 
 export default class UserManager extends TemplateCoreModule {
     static data: User[];
+    static module: UserManager;
 
-    static async get (identifier: number|string|User): Promise<User|null> {
+    constructor(query: sbQuery) {
+        super(query)
+        if (UserManager.module) return UserManager.module;
+        UserManager.module = this;
+        return this;
+    }
+
+    async get (identifier: UserIdentifier): Promise<User|null> {
         if (identifier instanceof User) {
             return identifier;
         }
         let condition:string;
         if (typeof identifier === "string") {
-            let candidate = this.data.find(user=>user.Name === identifier);
+            let candidate = UserManager.data.find(user=>user.Name === identifier);
             if (candidate) return candidate;
             condition = "Name = %s"
         }
         else if (typeof identifier === "number") {
-            let candidate = this.data.find(user=>user.ID === identifier);
+            let candidate = UserManager.data.find(user=>user.ID === identifier);
             if (candidate) return candidate;
             condition = "ID = %n";
         }
         
-        let possible_users: rawUser[]|[rawUser]|[] = await this.Query.getRecordset(rs=>rs
+        let possible_users: rawUser[] = await UserManager.Query.getRecordset(rs=>rs
             .select("*")
             .from("wb_core", "user")
             // @ts-ignore
@@ -58,7 +66,9 @@ export default class UserManager extends TemplateCoreModule {
         if (possible_users.length < 1) return null;
 
         let user = new User(possible_users[0])
-        this.data.push(user);
+        UserManager.data.push(user);
         return user;
     }
 }
+
+export type UserIdentifier = User | number | string
