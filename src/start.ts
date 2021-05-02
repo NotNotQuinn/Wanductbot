@@ -1,11 +1,13 @@
 import AbstractController from './controllers/abstract'
 import { Core } from './core'
-import TwitchController from './controllers/twitch'
 (async()=>{
+    require("../env")
     require("../db-access")
     const core: Core = await (await import("./core")).default;
 
-    const controller = new TwitchController(core);
-    controller.connect()
+    const controllers = await AbstractController.getAllControllers(core);
+    controllers.forEach(controller => {
+        controller.initialize()
+    });
 
 })();
