@@ -2,7 +2,7 @@
   "name": "wanductbot",
   "version": "1.0.0",
   "description": "A chat bot inspired by Supinic's 'Supibot'.",
-  "main": "index.js",
+  "main": "dist/start.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc -w",
