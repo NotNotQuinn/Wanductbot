@@ -10,14 +10,16 @@ export interface ConfigValue {
 }
 
 export default class Config extends TemplateCoreModule {
-
+    static module: Config;
     static data: Map<string, any>;
     constructor(query: sbQuery) {
         super(query)
+        if (Config.module) return Config.module;
+        Config.module = this;
         Config.data = new Map();
     }
 
-    static async get(key: string): Promise<any|null> {
+    async get(key: string): Promise<any|null> {
         // Check memory cache
         let mem_cache_val = Config.data.get(key);
         if (typeof mem_cache_val !== "undefined") return mem_cache_val;
