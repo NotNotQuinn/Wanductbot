@@ -1,7 +1,11 @@
+import { sbQuery } from "supi-core-query";
+
 const core = (async()=>{
-    const Query = await (await import("supi-core-query")).default();
+    const Query: sbQuery = await (await import("supi-core-query")).default();
     return {
-        User: new (await import("./user")).default(Query)
+        User: new (await import("./user")).default(Query),
+        Query: Query,
+        Config: new (await import("./config")).default(Query)
     }
 })();
 
