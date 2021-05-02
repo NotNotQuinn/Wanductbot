@@ -1,16 +1,23 @@
-import AbstractController from "./Abstract";
+import AbstractController from "./abstract";
 import DankIRC from "dank-twitch-irc";
 
-class TwitchController extends AbstractController {
+export class TwitchController extends AbstractController {
     client: DankIRC.ChatClient;
+    channels: string[];
     constructor() {
         super()
+        this.channels = [];
         this.client = new DankIRC.ChatClient({
             username: "wanductbot",
             password: process.env.TWITCH_OAUTH
         })
+        this.client.on("PRIVMSG", this.handlePrivmsg)
     }
-    async connect(a:1) {
+    async connect() {
+        this.client.connect();
+
+    }
+    handlePrivmsg (msg: DankIRC.PrivmsgMessage) {
         
     }
 }
