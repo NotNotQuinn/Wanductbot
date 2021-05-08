@@ -1,12 +1,12 @@
 import AbstractController from './controllers/abstract'
-import { Core } from './core'
+import core from './core'
 (async()=>{
     require("../env")
     require("../db-access")
-    const core: Core = await (await import("./core")).default;
 
     const controllers = await AbstractController.getAllControllers(core);
-    controllers.forEach(controller => {
+    controllers.forEach(async controller => {
+        await controller.Ready;
         controller.initialize()
     });
 
