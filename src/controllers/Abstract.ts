@@ -3,11 +3,12 @@ import { Core } from '../core';
 import TwitchController from './twitch';
 
 abstract class AbstractController {
+	abstract Ready: Promise<any>
 	abstract get isConnected(): boolean;
 	abstract get channels(): Set<string>;
-	core: Core;
+	static core: Core;
 	constructor(core: Core) {
-		this.core = core;
+		AbstractController.core = core;
 	}
 	/** Connect and start listening for messages. */
 	abstract connect(...args: any[]): Promise<void>;
