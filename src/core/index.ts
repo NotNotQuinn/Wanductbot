@@ -9,14 +9,14 @@ const core = (async()=>{
     }
 })();
 
-export default core;
-/**
- * This removes the Promise around a type.
- * 
- * `UnwrapPromise<Promise< YOUR_TYPE_HERE >> = YOUR_TYPE_HERE`
- * 
- * if `any` cannot go into your type, then it will become `unknown`
- */
-type UnwrapPromise<T extends Promise<any>> = T extends Promise<infer U> ? U : unknown;
+// use core as a global object
+// @ts-ignore
+globalThis["core"] = core;
 
-export type Core = UnwrapPromise<typeof import(".").default>
+export default await core;
+export type Core = typeof import(".").default
+
+// define core as a global object
+declare global {
+    var core: Core
+}
