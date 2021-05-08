@@ -1,54 +1,59 @@
 import AbstractController from "./abstract";
-import DankIRC from "dank-twitch-irc";
+import * as DankIRC from "dank-twitch-irc";
 import { UserIdentifier } from '../core/user';
 import { Core } from '../core'
 
 export default class TwitchController extends AbstractController {
-    client: DankIRC.ChatClient;
+    static client: DankIRC.ChatClient;
+    Ready: Promise<any>;
+    constructor(core: Core) {
+        super(core);
+        this.Ready = (async()=>{
+            TwitchController.client = new DankIRC.ChatClient({
+                username: (await core.Config.get("TWITCH_USERNAME")) as string,
+                password: process.env.TWITCH_OAUTH
+            })
+        })();
+    }
+
     get channels (): Set<string> {
-        return this.client.wantedChannels;
+        return TwitchController.client.wantedChannels;
     };
 
     get isConnected () {
-        return this.client.connected;
-    }
-
-    constructor(core: Core) {
-        super(core)
-        this.client = new DankIRC.ChatClient({
-            username: "wanductbot",
-            password: process.env.TWITCH_OAUTH
-        })
+        return TwitchController.client.connected;
     }
 
     async initialize () {
-        this.client.on("PRIVMSG", this.handlePrivmsg);
+        TwitchController.client.on("PRIVMSG", this.handlePrivmsg);
         await this.connect();
+        this.join("wanduct");
     }
 
     async connect() {
-        this.client.connect();
+        TwitchController.client.connect();
+    }
+
+    async dm (identifier: UserIdentifier, message: string) {
+        let user = (await TwitchController.core.User.get(identifier))
+        if (!user) throw new Error(`Cannot whisper user identified by '${identifier}' (type ${typeof identifier}), no such user.`);
+        await TwitchController.client.whisper(user.Name, message);
+    }
+
+    async join (channel: string) {
+        await TwitchController.client.join(channel)
+    }
+
+    async stop () {
+        TwitchController.client.close()
+    }
+
+    async part (channel: string) {
+        await TwitchController.client.part(channel)
     }
 
     handlePrivmsg (msg: DankIRC.PrivmsgMessage) {
         console.log("message", { msg: msg.messageText, user: msg.senderUsername, channel: msg.channelName })
     }
 
-    async dm (identifier: UserIdentifier, message: string) {
-        let user = (await this.core.User.get(identifier))
-        if (!user) throw new Error(`Cannot whisper user identified by '${identifier}' (type ${typeof identifier}), no such user.`);
-        await this.client.whisper(user.Name, message);
-    }
-
-    async join (channel: string) {
-        await this.client.join(channel)
-    }
-
-    async stop () {
-        this.client.close()
-    }
-
-    async part (channel: string) {
-        await this.client.part(channel)
-    }
 }
