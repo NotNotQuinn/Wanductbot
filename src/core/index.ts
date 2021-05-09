@@ -3,9 +3,9 @@ import { sbQuery } from "supi-core-query";
 const core = (async()=>{
     const Query: sbQuery = await (await import("supi-core-query")).default();
     return {
-        User: new (await import("./user")).default(Query),
+        User: new (await import("./user")).default(),
         Query: Query,
-        Config: new (await import("./config")).default(Query)
+        Config: new (await import("./config")).default()
     }
 })();
 

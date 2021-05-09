@@ -12,8 +12,8 @@ export interface ConfigValue {
 export default class Config extends TemplateCoreModule {
     static module: Config;
     static data: Map<string, any>;
-    constructor(query: sbQuery) {
-        super(query)
+    constructor() {
+        super();
         if (Config.module) return Config.module;
         Config.module = this;
         Config.data = new Map();
@@ -25,7 +25,7 @@ export default class Config extends TemplateCoreModule {
         if (typeof mem_cache_val !== "undefined") return mem_cache_val;
 
         // Check database
-        let db_values: ConfigValue[] = await Config.Query.getRecordset(rs=>rs
+        let db_values: ConfigValue[] = await core.Query.getRecordset(rs=>rs
             .select("*")
             .from("wb_core", "config")
             .where("`Key` = %s", key)

@@ -32,8 +32,8 @@ export default class UserManager extends TemplateCoreModule {
     static data: User[];
     static module: UserManager;
 
-    constructor(query: sbQuery) {
-        super(query)
+    constructor() {
+        super();
         if (UserManager.module) return UserManager.module;
         UserManager.module = this;
         return this;
@@ -55,7 +55,7 @@ export default class UserManager extends TemplateCoreModule {
             condition = "ID = %n";
         }
         
-        let possible_users: rawUser[] = await UserManager.Query.getRecordset(rs=>rs
+        let possible_users: rawUser[] = await core.Query.getRecordset(rs=>rs
             .select("*")
             .from("wb_core", "user")
             // @ts-ignore
