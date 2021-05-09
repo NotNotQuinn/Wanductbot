@@ -31,28 +31,32 @@ export default class Config extends TemplateCoreModule {
             .where("`Key` = %s", key)
             .limit(1)
         );
+
         if (db_values?.length ?? 0 < 1) return null;
-        let db_val = db_values![0];
-
-        // Set to the correct type
-        switch (db_val.Type) {
-            case "string":
-                break;
-            case "number":
-                let original = db_val.Value;
-                db_val.Value = Number(db_val.Value)
-                if (isNaN(db_val.Value) || Infinity === db_val.Value || -Infinity === db_val.Value) {
-                    let contents = db_val.Secret ? "Config contents are secret." : `Config contents: '${original}'`
-                    throw new Error(`Number config key '${key}' has invalid definition, and results in ${db_val.Value}. ${contents}`)
-                }
-                break;
-            default:
-                throw new Error(`Config key '${db_val.Key}' has invalid type definition, or type '${db_val.Type}' is not supported.`)
-        }
-
+        let db_val = this.formatValue(db_values![0]);
+        
         Config.data.set(key, db_val.Value);
 
         return db_val.Value;
-    } 
+    }
+
+    formatValue(rawValue: ConfigValue) {
+        // Set to the correct type
+        switch (rawValue.Type) {
+            case "string":
+                break;
+            case "number":
+                let original = rawValue.Value;
+                rawValue.Value = Number(rawValue.Value)
+                if (isNaN(rawValue.Value) || Infinity === rawValue.Value || -Infinity === rawValue.Value) {
+                    let contents = rawValue.Secret ? "Config contents are secret." : `Config contents: '${original}'`
+                    throw new Error(`Number config key '${rawValue.Key}' has invalid definition, and results in ${rawValue.Value}. ${contents}`)
+                }
+                break;
+            default:
+                throw new Error(`Config key '${rawValue.Key}' has invalid type definition, or type '${rawValue.Type}' is not supported.`)
+        }
+        return rawValue;
+    }
 
 }
