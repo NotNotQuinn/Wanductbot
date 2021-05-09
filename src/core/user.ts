@@ -29,7 +29,11 @@ export class User {
 }
 
 export default class UserManager extends TemplateCoreModule {
-    static data: User[];
+    /** Maps user ID to User object. */
+    static data: Map<number, User>;
+    /** Maps username to user ID */
+    static nameData: Map<string, number>;
+    /** A single instance, so there is only ever one instnace */
     static module: UserManager;
 
     constructor() {
@@ -45,12 +49,14 @@ export default class UserManager extends TemplateCoreModule {
         }
         let condition: string;
         if (typeof identifier === "string") {
-            let candidate = UserManager.data.find(user=>user.Name === identifier);
+            let id = UserManager.nameData.get(identifier);
+            let candidate: User | undefined;
+            if (id) candidate = UserManager.data.get(id);
             if (candidate) return candidate;
             condition = "Name = %s"
         }
         else if (typeof identifier === "number") {
-            let candidate = UserManager.data.find(user=>user.ID === identifier);
+            let candidate = UserManager.data.get(identifier);
             if (candidate) return candidate;
             condition = "ID = %n";
         }
@@ -66,7 +72,8 @@ export default class UserManager extends TemplateCoreModule {
         if ((possible_users?.length ?? 0) < 1) return null;
 
         let user = new User(possible_users![0])
-        UserManager.data.push(user);
+        UserManager.data.set(user.ID, user);
+        UserManager.nameData.set(user.Name, user.ID);
         return user;
     }
 }
