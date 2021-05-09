@@ -25,14 +25,14 @@ export default class Config extends TemplateCoreModule {
         if (typeof mem_cache_val !== "undefined") return mem_cache_val;
 
         // Check database
-        let db_values: ConfigValue[] = await core.Query.getRecordset(rs=>rs
+        let db_values: ConfigValue[] | undefined = await core.Query?.getRecordset?.(rs=>rs
             .select("*")
             .from("wb_core", "config")
             .where("`Key` = %s", key)
             .limit(1)
         );
-        if (db_values.length < 1) return null;
-        let db_val = db_values[0];
+        if (db_values?.length ?? 0 < 1) return null;
+        let db_val = db_values![0];
 
         // Set to the correct type
         switch (db_val.Type) {

@@ -43,7 +43,7 @@ export default class UserManager extends TemplateCoreModule {
         if (identifier instanceof User) {
             return identifier;
         }
-        let condition:string;
+        let condition: string;
         if (typeof identifier === "string") {
             let candidate = UserManager.data.find(user=>user.Name === identifier);
             if (candidate) return candidate;
@@ -55,17 +55,17 @@ export default class UserManager extends TemplateCoreModule {
             condition = "ID = %n";
         }
         
-        let possible_users: rawUser[] = await core.Query.getRecordset(rs=>rs
+        let possible_users: rawUser[] | undefined = await core?.Query?.getRecordset(rs=>rs
             .select("*")
             .from("wb_core", "user")
-            // @ts-ignore
+            // @ts-ignore identifier can be anything
             .where(condition, identifier)
             .limit(1)
         );
 
-        if (possible_users.length < 1) return null;
+        if ((possible_users?.length ?? 0) < 1) return null;
 
-        let user = new User(possible_users[0])
+        let user = new User(possible_users![0])
         UserManager.data.push(user);
         return user;
     }
