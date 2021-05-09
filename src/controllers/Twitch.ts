@@ -10,7 +10,7 @@ export default class TwitchController extends AbstractController {
         super(core);
         this.Ready = (async()=>{
             TwitchController.client = new DankIRC.ChatClient({
-                username: (await core.Config.get("TWITCH_USERNAME")) as string,
+                username: (await core.Config?.get("TWITCH_USERNAME")) ?? (()=>{ throw new Error("Could not ") })(),
                 password: process.env.TWITCH_OAUTH
             })
         })();
@@ -35,7 +35,7 @@ export default class TwitchController extends AbstractController {
     }
 
     async dm (identifier: UserIdentifier, message: string) {
-        let user = (await TwitchController.core.User.get(identifier))
+        let user = (await core.User?.get(identifier))
         if (!user) throw new Error(`Cannot whisper user identified by '${identifier}' (type ${typeof identifier}), no such user.`);
         await TwitchController.client.whisper(user.Name, message);
     }
