@@ -59,4 +59,23 @@ export default class Config extends TemplateCoreModule {
         return rawValue;
     }
 
+    loadData = async () => {
+        if (!core.Query) {
+            console.trace("Config data not loaded - Query is not loaded.");
+            return;
+        }
+        const values: ConfigValue[] = await core.Query.getRecordset(rs => rs
+            .select("*")
+            .from("wb_core", "config")
+        );
+        for (let value of values) {
+            try {
+                value = this.formatValue(value);
+            } catch (err) {
+                console.error(err);
+                continue;
+            }
+            Config.data.set(value.Key, value.Value);
+        }
+    }
 }
