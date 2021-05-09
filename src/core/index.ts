@@ -1,20 +1,41 @@
+// @ts-nocheck
 import { sbQuery } from "supi-core-query";
 
-const core = (async()=>{
-    const Query: sbQuery = await (await import("supi-core-query")).default();
-    return {
-        User: new (await import("./user")).default(),
-        Query: Query,
-        Config: new (await import("./config")).default()
-    }
-})();
+import UserManager from './user';
+import Config from './config';
+import CommandManager from './command';
 
-// use core as a global object
-// @ts-ignore
-globalThis["core"] = core;
+export default (async (options: Options<Core>) => {
+    function include(module: keyof Core): boolean {
+        if (blacklist && blacklist.includes(module)) {
+            return false;
+        } else if (whitelist && !whitelist.includes(module)) {
+            return false;
+        }
+        return true;
+    } 
 
-export default await core;
-export type Core = typeof import(".").default
+    const { whitelist, blacklist} = options;
+
+    if (typeof core !== "object") globalThis["core"] = {};
+
+    if (include("Query")) core.Query = await (await import("supi-core-query")).default();
+    if (include("Config")) core.Config = new Config();
+    if (include("User")) core.User = new UserManager();
+    if (include("Command")) core.Command = new CommandManager();
+});
+
+export type Core = Partial<{
+    Query: sbQuery;
+    Config: Config;
+    User: UserManager;
+    Command: CommandManager;
+}>
+
+export type Options<T> = {
+    whitelist?: (keyof T)[];
+    blacklist?: (keyof T)[];
+}
 
 // define core as a global object
 declare global {
