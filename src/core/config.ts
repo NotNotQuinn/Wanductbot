@@ -11,15 +11,14 @@ export interface ConfigValue {
 
 export default class Config extends TemplateCoreModule {
     static module: Config;
-    static data: Map<string, any>;
+    static data: Map<string, any> = new Map();
     constructor() {
         super();
         if (Config.module) return Config.module;
         Config.module = this;
-        Config.data = new Map();
     }
 
-    async get(key: string): Promise<any|null> {
+    static async get(key: string): Promise<any|null> {
         // Check memory cache
         let mem_cache_val = Config.data.get(key);
         if (typeof mem_cache_val !== "undefined") return mem_cache_val;
@@ -40,7 +39,7 @@ export default class Config extends TemplateCoreModule {
         return db_val.Value;
     }
 
-    formatValue(rawValue: ConfigValue) {
+    static formatValue(rawValue: ConfigValue) {
         // Set to the correct type
         switch (rawValue.Type) {
             case "string":
@@ -59,7 +58,7 @@ export default class Config extends TemplateCoreModule {
         return rawValue;
     }
 
-    loadData = async () => {
+    static loadData = async () => {
         if (!core.Query) {
             console.trace("Config data not loaded - Query is not loaded.");
             return;
@@ -70,7 +69,7 @@ export default class Config extends TemplateCoreModule {
         );
         for (let value of values) {
             try {
-                value = this.formatValue(value);
+                value = Config.formatValue(value);
             } catch (err) {
                 console.error(err);
                 continue;
