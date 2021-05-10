@@ -1,11 +1,14 @@
-// @ts-nocheck
 import { sbQuery } from "supi-core-query";
+
+import TemplateCoreModule from './template';
 
 import UserManager from './user';
 import Config from './config';
 import CommandManager from './command';
 
-export default (async (options: Options<Core>) => {
+export default (async (options?: Options<Core>) => {
+    const { whitelist, blacklist } = options ?? {};
+
     function include(module: keyof Core): boolean {
         if (blacklist && blacklist.includes(module)) {
             return false;
@@ -13,21 +16,24 @@ export default (async (options: Options<Core>) => {
             return false;
         }
         return true;
-    } 
+    }
 
-    const { whitelist, blacklist} = options;
+    function loadData<T extends typeof TemplateCoreModule>(component: T) {
+        component.loadData?.();
+        return component;
+    }
 
     if (typeof core !== "object") globalThis["core"] = {};
 
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
-    if (include("Config")) core.Config = new Config();
+    if (include("Config")) core.Config = loadData(Config);
     if (include("User")) core.User = new UserManager();
     if (include("Command")) core.Command = new CommandManager();
 });
 
 export type Core = Partial<{
     Query: sbQuery;
-    Config: Config;
+    Config: typeof Config;
     User: UserManager;
     Command: CommandManager;
 }>
