@@ -1,6 +1,4 @@
 import { UserIdentifier } from '../core/user';
-import { Core } from '../core';
-import TwitchController from './twitch';
 
 export default abstract class AbstractController {
 	abstract Ready: Promise<any>
@@ -18,8 +16,4 @@ export default abstract class AbstractController {
 	abstract initialize(): Promise<void>;
 	/** Disconnect and stop executing commands. */
 	abstract stop(): Promise<void>;
-
-	static async getAllControllers(): Promise<AbstractController[]> {
-		return [ new TwitchController() ]
-	}
 }

@@ -1,7 +1,6 @@
 import AbstractController from "./abstract";
 import * as DankIRC from "dank-twitch-irc";
 import { UserIdentifier } from '../core/user';
-import { Core } from '../core'
 
 export default class TwitchController extends AbstractController {
     static client: DankIRC.ChatClient;
