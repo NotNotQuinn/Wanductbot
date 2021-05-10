@@ -2,7 +2,7 @@ import { UserIdentifier } from '../core/user';
 import { Core } from '../core';
 import TwitchController from './twitch';
 
-abstract class AbstractController {
+export default abstract class AbstractController {
 	abstract Ready: Promise<any>
 	abstract get isConnected(): boolean;
 	abstract get channels(): Set<string>;
@@ -26,7 +26,4 @@ abstract class AbstractController {
 	static async getAllControllers(core: Core): Promise<AbstractController[]> {
 		return [ new TwitchController(core) ]
 	}
-
 }
-
-export default AbstractController;
