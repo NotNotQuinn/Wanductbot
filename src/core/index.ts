@@ -18,15 +18,15 @@ export default (async (options?: Options<Core>) => {
         return true;
     }
 
-    function loadData<T extends typeof TemplateCoreModule>(component: T) {
-        component.loadData?.();
+    async function loadData<T extends typeof TemplateCoreModule>(component: T) {
+        await component.loadData?.();
         return component;
     }
 
     if (typeof core !== "object") globalThis["core"] = {};
 
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
-    if (include("Config")) core.Config = loadData(Config);
+    if (include("Config")) core.Config = await loadData(Config);
     if (include("User")) core.User = new UserManager();
     if (include("Command")) core.Command = new CommandManager();
 });
