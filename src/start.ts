@@ -1,16 +1,19 @@
-import './core';
+import initCore from './core';
+// @ts-ignore
 import '../env';
+// @ts-ignore
 import '../db-access';
-import AbstractController from './controllers/abstract';
+import getAllControllers from './controllers';
 
 (async()=>{
-    const controllers = await AbstractController.getAllControllers(core);
+    await initCore();
+    const controllers = getAllControllers();
 
     for (let i = 0; i < controllers.length; i++) {
         let controller = controllers[i];
+        console.time(`Controller load`)
         await controller.Ready;
-        controller.initialize()
-        
+        await controller.initialize()
+        console.timeEnd(`Controller load`)
     }
-
 })();
