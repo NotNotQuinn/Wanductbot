@@ -48,11 +48,11 @@ export default class CommandManager extends TemplateCoreModule {
     }
 
     /** Gets a command based off of the name. */
-    async get(identifier: Command.Identifier) {
+    static async get(identifier: Command.Identifier) {
         if (identifier instanceof Command) return identifier;
     }
 
-    set(name: string, cmd: Command) {
+    static set(name: string, cmd: Command) {
         CommandManager.data.set(name, cmd);
         for (const alias of cmd.Aliases) {
             CommandManager.aliasData.set(alias, name);
@@ -60,7 +60,7 @@ export default class CommandManager extends TemplateCoreModule {
     };
 
     /** Loads a command from a file path, and returns it. */
-    load = (directory: string, save = true): Command => {
+    static load (directory: string, save = true): Command {
         const cmd: Command = require(directory)?.default;
         if (!cmd) {
             throw new Error(`Command at location '${directory}' has invalid definition, or does not export definition as default.`);
@@ -79,7 +79,7 @@ export default class CommandManager extends TemplateCoreModule {
         return cmd;
     };
 
-    loadData = async () => {
+    static loadData = async () => {
         CommandManager.data = new Map();
         let dir = await core.Config!.get("WB_PKG_DIR") as string;
         dir = path.join(dir, "commands");
@@ -89,17 +89,17 @@ export default class CommandManager extends TemplateCoreModule {
             const file = path.join(dir, files[i])
             let cmd: Command;
             try {
-                cmd = this.load(file);
+                cmd = CommandManager.load(file);
             } catch (e) {
                 console.error(e);
                 console.warn(`Skipping loading command from file '${file}'`);
                 continue;
             }
-            this.set(files[i], cmd);
+            CommandManager.set(files[i], cmd);
         }
     };
 
-    checkAndExecute (name: string, args: string[], channel: ChannelIdentifier, user: UserIdentifier) {
+    static checkAndExecute (name: string, args: string[], channel: ChannelIdentifier, user: UserIdentifier) {
 
     }
 

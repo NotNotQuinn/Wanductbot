@@ -28,14 +28,14 @@ export default (async (options?: Options<Core>) => {
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
     if (include("Config")) core.Config = await loadData(Config);
     if (include("User")) core.User = new UserManager();
-    if (include("Command")) core.Command = new CommandManager();
+    if (include("Command")) core.Command = await loadData(CommandManager);
 });
 
 export type Core = Partial<{
     Query: sbQuery;
     Config: typeof Config;
     User: UserManager;
-    Command: CommandManager;
+    Command: typeof CommandManager;
 }>
 
 export type Options<T> = {
