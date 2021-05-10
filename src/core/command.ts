@@ -1,6 +1,9 @@
 import TemplateCoreModule from "./template";
 import * as path from "path";
 import * as fs from "fs/promises";
+import { UserIdentifier } from "./user";
+import { ChannelIdentifier } from "./channel";
+
 export abstract class Command {
     /** Necessary: The implimentation of the command. */
     abstract Execution: Command.ExecFunc;
@@ -95,4 +98,9 @@ export default class CommandManager extends TemplateCoreModule {
             this.set(files[i], cmd);
         }
     };
+
+    checkAndExecute (name: string, args: string[], channel: ChannelIdentifier, user: UserIdentifier) {
+
+    }
+
 }
