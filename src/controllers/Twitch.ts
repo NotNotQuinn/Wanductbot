@@ -6,11 +6,11 @@ import { Core } from '../core'
 export default class TwitchController extends AbstractController {
     static client: DankIRC.ChatClient;
     Ready: Promise<any>;
-    constructor(core: Core) {
-        super(core);
+    constructor() {
+        super()
         this.Ready = (async()=>{
             TwitchController.client = new DankIRC.ChatClient({
-                username: (await core.Config?.get("TWITCH_USERNAME")) ?? (()=>{ throw new Error("Could not ") })(),
+                username: (await core.Config?.get("TWITCH_USERNAME")) ?? (()=>{ throw new Error("Could not load twitch username.") })(),
                 password: process.env.TWITCH_OAUTH
             })
         })();

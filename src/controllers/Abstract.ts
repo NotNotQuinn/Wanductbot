@@ -6,10 +6,6 @@ export default abstract class AbstractController {
 	abstract Ready: Promise<any>
 	abstract get isConnected(): boolean;
 	abstract get channels(): Set<string>;
-	static core: Core;
-	constructor(core: Core) {
-		AbstractController.core = core;
-	}
 	/** Connect and start listening for messages. */
 	abstract connect(...args: any[]): Promise<void>;
 	/** Join a channel. */
@@ -23,7 +19,7 @@ export default abstract class AbstractController {
 	/** Disconnect and stop executing commands. */
 	abstract stop(): Promise<void>;
 
-	static async getAllControllers(core: Core): Promise<AbstractController[]> {
-		return [ new TwitchController(core) ]
+	static async getAllControllers(): Promise<AbstractController[]> {
+		return [ new TwitchController() ]
 	}
 }
