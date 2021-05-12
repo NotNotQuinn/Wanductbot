@@ -26,7 +26,7 @@ export default (async (options?: Options<Core>) => {
 
     if (typeof core !== "object") globalThis["core"] = {};
 
-    // Order here is important.
+    // Order here is important. Query - Config - User - Channel - Command
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
     if (include("Config")) core.Config = await loadData(Config);
     if (include("User")) core.User = await loadData(UserManager);
