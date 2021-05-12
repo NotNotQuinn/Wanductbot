@@ -1,4 +1,4 @@
-import { sbQuery, sbDate } from 'supi-core-query';
+import { sbDate } from 'supi-core-query';
 import TemplateCoreModule from './template';
 export interface rawUser {
     /** Uniqu numeric ID */
@@ -28,7 +28,7 @@ export class User {
     }
 }
 
-export default class UserManager extends TemplateCoreModule {
+export default abstract class UserManager extends TemplateCoreModule {
     /** Maps user ID to User object. */
     static data: Map<number, User>;
     /** Maps username to user ID */
@@ -36,14 +36,7 @@ export default class UserManager extends TemplateCoreModule {
     /** A single instance, so there is only ever one instnace */
     static module: UserManager;
 
-    constructor() {
-        super();
-        if (UserManager.module) return UserManager.module;
-        UserManager.module = this;
-        return this;
-    }
-
-    async get (identifier: UserIdentifier): Promise<User|null> {
+    static async get (identifier: UserIdentifier): Promise<User|null> {
         if (identifier instanceof User) {
             return identifier;
         }
