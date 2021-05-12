@@ -61,27 +61,20 @@ export namespace Command {
     } | null;
 }
 
-export default class CommandManager extends TemplateCoreModule {
+export default abstract class CommandManager extends TemplateCoreModule {
     /** A map of command names to command objects. */
     static data: Map<string, Command> = new Map();
     /** A map of command aliases to command names. */
     static aliasData: Map<string, string> = new Map();
-    /** A single instance, so there will only ever be one instance of this class. */
-    static module?: CommandManager;
-    constructor() {
-        super();
-        if (CommandManager.module) return CommandManager.module;
-        CommandManager.module = this;
-    }
 
-    /** Gets a command based off of the name. */
+    /** Gets a command with the name. */
     static async get(identifier: Command.Identifier) {
         if (identifier instanceof Command) return identifier;
     }
 
     static set(name: string, cmd: Command) {
         CommandManager.data.set(name, cmd);
-        for (const alias of cmd.Aliases) {
+        for (const alias of cmd.aliases) {
             CommandManager.aliasData.set(alias, name);
         }
     };
