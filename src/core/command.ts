@@ -28,7 +28,7 @@ export abstract class Command {
     }
 
     /** Necessary: The name of the command. */
-    abstract name: string;
+    abstract Name: string;
     /** Necessary: The implimentation of the command. */
     abstract Execution: Command.ExecFunc;
     /** Necessary: The person who made the command. */
@@ -55,7 +55,7 @@ export namespace Command {
         | "no-user"
         | "no-command"
         | "no-channel"
-        | "undefined-return"
+        | "malformated-return"
     ;
 
     export class Context {
@@ -88,12 +88,16 @@ export default abstract class CommandManager extends TemplateCoreModule {
     /** Gets a command with the name. */
     static async get(identifier: Command.Identifier) {
         if (identifier instanceof Command) return identifier;
+        if (CommandManager.data.has(identifier)) return CommandManager.data.get(identifier);
+        if (CommandManager.aliasData.has(identifier)) {
+            return CommandManager.data.get(CommandManager.aliasData.get(identifier) as string)
+        };
     }
-
-    static set(name: string, cmd: Command) {
-        CommandManager.data.set(name, cmd);
+    /** Register a command into memory. */
+    static register(cmd: Command) {
+        CommandManager.data.set(cmd.Name, cmd);
         for (const alias of cmd.aliases) {
-            CommandManager.aliasData.set(alias, name);
+            CommandManager.aliasData.set(alias, cmd.Name);
         }
     };
 
@@ -109,7 +113,7 @@ export default abstract class CommandManager extends TemplateCoreModule {
         // @ts-ignore
         let cmd: Command = new cmdClass();
         if (save) {
-            this.set(cmdClass.name, cmd);
+            this.register(cmd);
         }
         return cmd;
     };
@@ -174,7 +178,7 @@ export default abstract class CommandManager extends TemplateCoreModule {
             return { success: false, reason: "The command resulted in an error.", reason_code: "command-error" };
         }
 
-        if (result === undefined) return { success: false, reason: "Command returned `undefined`.", reason_code: "undefined-return" };
+        if (typeof result !== "object") return { success: false, reason: "Command result is malformatted.", reason_code: "malformated-return" };
         if (result.reply === null) return { success: true, reason: "Command reply was `null`.", reason_code: "null-reply" };
 
         return { success: true, ...result };
