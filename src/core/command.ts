@@ -1,8 +1,23 @@
 import TemplateCoreModule from "./template";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { UserIdentifier } from "./user";
-import { ChannelIdentifier } from "./channel";
+import { User, UserIdentifier } from "./user";
+import { Channel, ChannelIdentifier } from "./channel";
+
+
+// TODO: Move deepFreeze into seperate module/place.
+function deepFreeze (object: object) {
+    const properties = Object.getOwnPropertyNames(object);
+    for (const key of properties) {
+        // @ts-ignore
+        const value = object[key];
+        if (value && typeof value === "object" && value.constructor !== RegExp) {
+            deepFreeze(value);
+        }
+    }
+
+    return Object.freeze(object);
+}
 
 export abstract class Command {
     constructor() {
@@ -32,6 +47,8 @@ export abstract class Command {
 
 export namespace Command {
     export class Context {
+        constructor( public user: User, public channel: Channel ) {
+        }
     }
 
     export type ExecFunc = (context: Command.Context, ...args: string[] ) => Promise<Command.ReturnValue>;
