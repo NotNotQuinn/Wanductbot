@@ -61,6 +61,11 @@ export namespace Command {
     } | null;
 }
 
+export interface Execution extends Partial<NonNullable<Command.ReturnValue>> {
+    success: boolean;
+    reason?: string;
+}
+
 export default abstract class CommandManager extends TemplateCoreModule {
     /** A map of command names to command objects. */
     static data: Map<string, Command> = new Map();
@@ -123,8 +128,36 @@ export default abstract class CommandManager extends TemplateCoreModule {
             );
     };
 
-    static checkAndExecute (name: string, args: string[], channel: ChannelIdentifier, user: UserIdentifier) {
+    /** Parses a raw message into the command name and arguments to use for execution. */
+    static parseMsg(message: string): { identifier: string | undefined; args: string[] } {
+        let args = message.split(" ");
+        let identifier = args.shift();
+        return { args, identifier }
+    }
 
+    /** 
+     * Checks if a message needs command execution, and executes if needed.
+     */
+    static async checkAndExecute (execData: {message: string, channel: ChannelIdentifier, user: UserIdentifier}): Promise<Execution> {
+        let { message: raw_message, channel: raw_channel, user: raw_user } = execData;
+
+        const { identifier, args } = this.parseMsg(raw_message);
+        if (!identifier) return { success: false, reason: "Does not match command format." };
+
+        const command = await CommandManager.get(identifier);
+        if (!command) return { success: false, reason: "Command not found." };
+
+        const channel = await core.Channel!.get({ identifier: raw_channel });
+        if (!channel) return { success: false, reason: "Channel not found." };
+
+        const user = await core.User!.get(raw_user);
+        if (!user) return { success: false, reason: "User not found." };
+
+        let context = new Command.Context(user, channel);
+        const result = await command.Execution(context, ...args);
+
+
+        throw new Error("Function not implemented.");
     }
 
 }
