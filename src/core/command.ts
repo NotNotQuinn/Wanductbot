@@ -5,19 +5,29 @@ import { UserIdentifier } from "./user";
 import { ChannelIdentifier } from "./channel";
 
 export abstract class Command {
+    constructor() {
+        // @ts-ignore Commands rely on this - assignment to readonly property 'staticData'.
+        this.staticData = deepFreeze( typeof this.getStaticData === "undefined" ? {} : this.getStaticData() );
+
+        if (typeof this.data === "undefined") this.data = {};
+    }
+
+    /** Necessary: The name of the command. */
+    abstract name: string;
     /** Necessary: The implimentation of the command. */
     abstract Execution: Command.ExecFunc;
     /** Necessary: The person who made the command. */
-    abstract Author: string;
+    abstract author: string;
 
     /** Optional: A function that returns an object, called once when the command is loaded. */
-    getStaticData?: () => object;
+    getStaticData?: (() => ({}));
     /** Optional: Data that is saved until the command reloads. */
-    data: {} = {};
+    data = {};
     /** Optional: A list of alternative names used to reference this command. */
-    Aliases: string[] = [];
-    /** Script managed: A frozen object that is loaded once when the command is loaded. */
-    readonly staticData!: ReturnType<NonNullable<this["getStaticData"]>>;
+    aliases: string[] = [];
+
+    /** A frozen object that is loaded once when the command is loaded. */
+    readonly staticData: ReturnType<NonNullable<this["getStaticData"]>>;
 }
 
 export namespace Command {
