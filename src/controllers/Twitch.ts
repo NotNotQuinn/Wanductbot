@@ -24,9 +24,9 @@ export default class TwitchController extends AbstractController {
     }
 
     async initialize () {
-        this.client.on("PRIVMSG", this.handlePrivmsg);
+        this.client.on("PRIVMSG", (msg) => this.handlePrivmsg(msg));
         await this.connect();
-        await this.join("wanduct");
+        await this.joinAllActive();
     }
 
     async connect() {
@@ -52,6 +52,21 @@ export default class TwitchController extends AbstractController {
     }
 
     handlePrivmsg (msg: DankIRC.PrivmsgMessage) {
+    async send(channel: string, message: string) {
+        this.client.say(channel, message);
+    }
+
+    async joinAllActive() {
+        let channels: string[] = await core.Query!.getRecordset(rs=>rs
+            .select("Name")
+            .from("wb_core", "channel")
+            .flat("Name")
+        );
+        for(const channel of channels) {
+            this.join(channel);
+        }
+    }
+
         if (core.Command === undefined) return;
         try {
             core.Command?.checkAndExecute({ message: msg.messageText, channel: msg.channelName, user: msg.senderUsername });
