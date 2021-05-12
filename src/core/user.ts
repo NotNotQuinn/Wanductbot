@@ -30,11 +30,9 @@ export class User {
 
 export default abstract class UserManager extends TemplateCoreModule {
     /** Maps user ID to User object. */
-    static data: Map<number, User>;
+    static data: Map<number, User> = new Map();
     /** Maps username to user ID */
-    static nameData: Map<string, number>;
-    /** A single instance, so there is only ever one instnace */
-    static module: UserManager;
+    static nameData: Map<string, number> = new Map();
 
     static async get (identifier: UserIdentifier): Promise<User|null> {
         if (identifier instanceof User) {
@@ -46,7 +44,7 @@ export default abstract class UserManager extends TemplateCoreModule {
             let candidate: User | undefined;
             if (id) candidate = UserManager.data.get(id);
             if (candidate) return candidate;
-            condition = "Name = %s"
+            condition = "Name = %s";
         }
         else if (typeof identifier === "number") {
             let candidate = UserManager.data.get(identifier);
