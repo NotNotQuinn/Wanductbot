@@ -51,7 +51,6 @@ export default class TwitchController extends AbstractController {
         await this.client.part(channel)
     }
 
-    handlePrivmsg (msg: DankIRC.PrivmsgMessage) {
     async send(channel: string, message: string) {
         this.client.say(channel, message);
     }
@@ -67,12 +66,27 @@ export default class TwitchController extends AbstractController {
         }
     }
 
+    async handlePrivmsg (msg: DankIRC.PrivmsgMessage): Promise<void> {
+        // FIXME: use platforms instead, the database is mostly set up. however the code needs to be done.
+        if (msg.senderUsername == "wanductbot") return;
         if (core.Command === undefined) return;
+        let response: FuncReturn<NonNullable<typeof core.Command>["checkAndExecute"]>;
         try {
-            core.Command?.checkAndExecute({ message: msg.messageText, channel: msg.channelName, user: msg.senderUsername });
+            response = await core.Command!.checkAndExecute({
+                message: msg.messageText,
+                channel: msg.channelName,
+                user: msg.senderUsername
+            });
         } catch (e) {
             console.error("Command execution failed!", e);
+            return;
+        }
+        if (typeof response.reply === "string") {
+            await this.send(msg.channelName, response.reply)
         }
     }
-
+    
 }
+
+/** A better version of ReturnType => it takes into account async functions. */
+type FuncReturn<T extends (...args: any[]) => any> = T extends (...args: any[]) => Promise<infer R> ? R : ReturnType<T>;
