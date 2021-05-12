@@ -10,10 +10,14 @@ export default abstract class AbstractController {
 	abstract join(channel: string): Promise<void>;
 	/** Leave a channel. */
 	abstract part(channel: string): Promise<void>;
+	/** Send a message in a channel. */
+	abstract send(channel: string, message: string): Promise<void>;
 	/** Send a private message (if able) */
 	abstract dm(user: UserIdentifier, message: string): Promise<void>;
 	/** Connect, and start executing commands. */
 	abstract initialize(): Promise<void>;
 	/** Disconnect and stop executing commands. */
 	abstract stop(): Promise<void>;
+	/** Join all channels it should join. */
+	abstract joinAllActive(): Promise<void>;
 }
