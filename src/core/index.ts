@@ -5,6 +5,7 @@ import TemplateCoreModule from './template';
 import UserManager from './user';
 import Config from './config';
 import CommandManager from './command';
+import Channel from './channel';
 
 export default (async (options?: Options<Core>) => {
     const { whitelist, blacklist } = options ?? {};
@@ -25,17 +26,20 @@ export default (async (options?: Options<Core>) => {
 
     if (typeof core !== "object") globalThis["core"] = {};
 
+    // Order here is important.
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
     if (include("Config")) core.Config = await loadData(Config);
-    if (include("User")) core.User = new UserManager();
+    if (include("User")) core.User = await loadData(UserManager);
+    if (include("Channel")) core.Channel = await loadData(Channel);
     if (include("Command")) core.Command = await loadData(CommandManager);
 });
 
 export type Core = Partial<{
-    Query: sbQuery;
+    Channel: typeof Channel;
     Config: typeof Config;
-    User: UserManager;
+    User: typeof UserManager;
     Command: typeof CommandManager;
+    Query: sbQuery;
 }>
 
 export type Options<T> = {
@@ -45,5 +49,5 @@ export type Options<T> = {
 
 // define core as a global object
 declare global {
-    var core: Core
+    var core: Core;
 }
