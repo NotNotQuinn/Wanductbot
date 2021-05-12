@@ -6,7 +6,7 @@ export default class PingCommand extends Command {
             reply: `Pong! ${this.data.count}x`
         };
     };
-    name = "ping";
+    Name = "ping";
     aliases = ["pyng"]
     data = { count: 0 };
     author = "QuinnDT";
