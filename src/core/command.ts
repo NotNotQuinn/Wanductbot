@@ -46,6 +46,18 @@ export abstract class Command {
 }
 
 export namespace Command {
+    
+    export type FailReason = 
+        | "bad-format"
+        | "command-fail"
+        | "command-error"
+        | "null-reply"
+        | "no-user"
+        | "no-command"
+        | "no-channel"
+        | "undefined-return"
+    ;
+
     export class Context {
         constructor( public user: User, public channel: Channel ) {
         }
@@ -56,14 +68,15 @@ export namespace Command {
     export type Identifier = Command | string;
 
     export type ReturnValue = {
-        reply: string;
+        reply?: string | null;
         success?: boolean;
-    } | null;
+    };
 }
 
 export interface Execution extends Partial<NonNullable<Command.ReturnValue>> {
     success: boolean;
     reason?: string;
+    reason_code?: Command.FailReason;
 }
 
 export default abstract class CommandManager extends TemplateCoreModule {
@@ -142,22 +155,28 @@ export default abstract class CommandManager extends TemplateCoreModule {
         let { message: raw_message, channel: raw_channel, user: raw_user } = execData;
 
         const { identifier, args } = this.parseMsg(raw_message);
-        if (!identifier) return { success: false, reason: "Does not match command format." };
+        if (!identifier) return { success: false, reason: "Does not match command format.", reason_code: "bad-format" };
 
         const command = await CommandManager.get(identifier);
-        if (!command) return { success: false, reason: "Command not found." };
+        if (!command) return { success: false, reason: "Command not found.", reason_code: "no-command" };
 
         const channel = await core.Channel!.get({ identifier: raw_channel });
-        if (!channel) return { success: false, reason: "Channel not found." };
+        if (!channel) return { success: false, reason: "Channel not found.", reason_code: "no-channel" };
 
         const user = await core.User!.get(raw_user);
-        if (!user) return { success: false, reason: "User not found." };
+        if (!user) return { success: false, reason: "User not found.", reason_code: "no-user" };
 
         let context = new Command.Context(user, channel);
-        const result = await command.Execution(context, ...args);
+        let result: Command.ReturnValue;
+        try {
+            result = await command.Execution(context, ...args);
+        } catch (e) {
+            return { success: false, reason: "The command resulted in an error.", reason_code: "command-error" };
+        }
 
+        if (result === undefined) return { success: false, reason: "Command returned `undefined`.", reason_code: "undefined-return" };
+        if (result.reply === null) return { success: true, reason: "Command reply was `null`.", reason_code: "null-reply" };
 
-        throw new Error("Function not implemented.");
+        return { success: true, ...result };
     }
-
 }
