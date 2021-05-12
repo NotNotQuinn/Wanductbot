@@ -79,44 +79,48 @@ export default abstract class CommandManager extends TemplateCoreModule {
         }
     };
 
-    /** Loads a command from a file path, and returns it. */
-    static load (directory: string, save = true): Command {
-        const cmd: Command = require(directory)?.default;
-        if (!cmd) {
-            throw new Error(`Command at location '${directory}' has invalid definition, or does not export definition as default.`);
+    /** Loads a command from a file path, saves, and returns it. */
+    static async load (options: { filepath: string, save?: boolean }): Promise<Command> {
+        const { filepath, save = true } = options;
+        let dir = path.resolve(path.join(path.resolve(await core.Config!.get("WB_PKG_DIR") as string), "commands"), filepath);
+
+        let cmdClass: typeof Command = require(dir)?.default;
+        if (!cmdClass) {
+            throw new Error(`Command at location '${dir}' has invalid definition, or does not export definition as default.`);
         };
-        // @ts-ignore Commands rely on this - assignment to readonly property 'staticData'.
-        if (typeof cmd.getStaticData !== "undefined") cmd.staticData = cmd.getStaticData();
-        if (typeof cmd.data === "undefined") cmd.data = {};
+        // @ts-ignore
+        let cmd: Command = new cmdClass();
         if (save) {
-            let dir = path.parse(directory);
-            let cmdName: string;
-            if (dir.base == "index.ts") 
-                cmdName = path.parse(dir.dir).name;
-            else cmdName = dir.name;
-            this.set(cmdName, cmd);
+            this.set(cmdClass.name, cmd);
         }
         return cmd;
     };
 
+    /** Loads all commands in the package directory, restarting fresh each time. */
     static loadData = async () => {
-        CommandManager.data = new Map();
+        CommandManager.data.clear();
+
         let dir = await core.Config!.get("WB_PKG_DIR") as string;
-        dir = path.join(dir, "commands");
+        dir = path.join(path.resolve(dir), "commands");
         let files = await fs.readdir(dir);
 
-        for (let i = 1; i < files.length; i++) {
+        let skipped: string[] = [];
+        for (let i = 0; i < files.length; i++) {
             const file = path.join(dir, files[i])
             let cmd: Command;
             try {
-                cmd = CommandManager.load(file);
+                cmd = await CommandManager.load({ filepath: file });
             } catch (e) {
                 console.error(e);
-                console.warn(`Skipping loading command from file '${file}'`);
+                skipped.push(file);
                 continue;
             }
-            CommandManager.set(files[i], cmd);
         }
+        if (skipped.length > 0)
+            console.warn(
+                `${skipped.length} command${ skipped.length == 1 ? " was" : "s were"} skipped when loading!`,
+                { files: skipped }
+            );
     };
 
     static checkAndExecute (name: string, args: string[], channel: ChannelIdentifier, user: UserIdentifier) {
