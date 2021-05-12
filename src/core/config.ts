@@ -30,8 +30,8 @@ export default class Config extends TemplateCoreModule {
             .where("`Key` = %s", key)
             .limit(1)
         );
-
-        if (db_values?.length ?? 0 < 1) return null;
+        
+        if ((db_values?.length ?? 0) < 1) return null;
         let db_val = this.formatValue(db_values![0]);
         
         Config.data.set(key, db_val.Value);
@@ -41,7 +41,7 @@ export default class Config extends TemplateCoreModule {
 
     static formatValue(rawValue: ConfigValue) {
         // Set to the correct type
-        switch (rawValue.Type) {
+        switch (rawValue?.Type) {
             case "string":
                 break;
             case "number":
