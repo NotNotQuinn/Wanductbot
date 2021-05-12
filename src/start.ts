@@ -11,9 +11,9 @@ import getAllControllers from './controllers';
 
     for (let i = 0; i < controllers.length; i++) {
         let controller = controllers[i];
-        console.time(`Controller load`)
+        console.time(`${controller.constructor.name} loaded`)
         await controller.Ready;
         await controller.initialize()
-        console.timeEnd(`Controller load`)
+        console.timeEnd(`${controller.constructor.name} loaded`)
     }
 })();
