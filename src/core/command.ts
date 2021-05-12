@@ -85,6 +85,14 @@ export default abstract class CommandManager extends TemplateCoreModule {
     /** A map of command aliases to command names. */
     static aliasData: Map<string, string> = new Map();
 
+    private static _prefix: string | null = null;
+
+    static get prefix (): string | null {
+
+        if (this._prefix) return this._prefix;
+        return null;
+    }
+
     /** Gets a command with the name. */
     static async get(identifier: Command.Identifier) {
         if (identifier instanceof Command) return identifier;
@@ -120,6 +128,8 @@ export default abstract class CommandManager extends TemplateCoreModule {
 
     /** Loads all commands in the package directory, restarting fresh each time. */
     static loadData = async () => {
+        CommandManager._prefix = await core.Config?.get("COMMAND_PREFIX") as string ?? null;
+
         CommandManager.data.clear();
 
         let dir = await core.Config!.get("WB_PKG_DIR") as string;
@@ -148,7 +158,15 @@ export default abstract class CommandManager extends TemplateCoreModule {
     /** Parses a raw message into the command name and arguments to use for execution. */
     static parseMsg(message: string): { identifier: string | undefined; args: string[] } {
         let args = message.split(" ");
-        let identifier = args.shift();
+        let identifier: string | undefined = undefined;
+        if (!this.prefix) {
+            args.shift();
+            return { identifier: undefined, args };
+        };
+        if (args[0]?.startsWith(this.prefix)) {
+            identifier = args.shift();
+            identifier = identifier?.slice(this.prefix.length);
+        };
         return { args, identifier }
     }
 
