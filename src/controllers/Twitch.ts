@@ -1,15 +1,16 @@
 import AbstractController from "./abstract";
 import * as DankIRC from "dank-twitch-irc";
-import { UserIdentifier } from '../core/user';
+import { Core } from "../core";
+import { UserIdentifier } from "../core/user";
 
 export default class TwitchController extends AbstractController {
     client!: DankIRC.ChatClient;
     Ready: Promise<any>;
-    constructor() {
-        super()
+    constructor(core: Core) {
+        super(core)
         this.Ready = (async()=>{
             this.client = new DankIRC.ChatClient({
-                username: (await core.Config?.get("TWITCH_USERNAME")) ?? (()=>{ throw new Error("Could not load twitch username.") })(),
+                username: (await this.core.Config!.get("TWITCH_USERNAME")) ?? (()=>{ throw new Error("Could not load twitch username.") })(),
                 password: process.env.TWITCH_OAUTH
             })
         })();
@@ -34,7 +35,7 @@ export default class TwitchController extends AbstractController {
     }
 
     async dm (identifier: UserIdentifier, message: string) {
-        let user = (await core.User?.get(identifier))
+        let user = (await this.core.User?.get(identifier))
         if (!user) throw new Error(`Cannot whisper user identified by ${typeof identifier} '${identifier}', no such user.`);
         await this.client.whisper(user.Name, message);
     }
@@ -56,7 +57,7 @@ export default class TwitchController extends AbstractController {
     }
 
     async joinAllActive() {
-        let channels: string[] = await core.Query!.getRecordset(rs=>rs
+        let channels: string[] = await this.core.Query!.getRecordset(rs=>rs
             .select("Name")
             .from("wb_core", "channel")
             .flat("Name")
@@ -69,10 +70,10 @@ export default class TwitchController extends AbstractController {
     async handlePrivmsg (msg: DankIRC.PrivmsgMessage): Promise<void> {
         // FIXME: use platforms instead, the database is mostly set up. however the code needs to be done.
         if (msg.senderUsername == "wanductbot") return;
-        if (core.Command === undefined) return;
-        let response: FuncReturn<NonNullable<typeof core.Command>["checkAndExecute"]>;
+        if (this.core.Command === undefined) return;
+        let response: FuncReturn<NonNullable<Core["Command"]>["checkAndExecute"]>;
         try {
-            response = await core.Command!.checkAndExecute({
+            response = await this.core.Command!.checkAndExecute({
                 message: msg.messageText,
                 channel: msg.channelName,
                 user: msg.senderUsername

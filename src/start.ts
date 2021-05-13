@@ -6,8 +6,8 @@ import '../db-access';
 import getAllControllers from './controllers';
 
 (async()=>{
-    await initCore();
-    const controllers = getAllControllers();
+    const core = await initCore();
+    const controllers = getAllControllers(core);
 
     for (let i = 0; i < controllers.length; i++) {
         let controller = controllers[i];
