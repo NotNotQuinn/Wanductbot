@@ -1,4 +1,4 @@
-import { sbDate } from 'supi-core-query';
+import { sbDate, sbQuery } from 'supi-core-query';
 import TemplateCoreModule from './template';
 export interface rawUser {
     /** Unique numeric ID */
@@ -52,7 +52,7 @@ export default abstract class UserManager extends TemplateCoreModule {
             condition = "ID = %n";
         }
         
-        let possible_users: rawUser[] | undefined = await core?.Query?.getRecordset(rs=>rs
+        let possible_users: rawUser[] | undefined = await this.core?.Query?.getRecordset(rs=>rs
             .select("*")
             .from("wb_core", "user")
             // @ts-ignore identifier can be anything

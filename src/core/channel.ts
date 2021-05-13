@@ -28,7 +28,7 @@ export class ChannelManager extends TemplateCoreModule {
             throw new Error(`Invalid channel identifier type '${typeof identifier}'.`)
         }
 
-        let [candidate]: rawChannel[] = await core.Query!.getRecordset(rs => rs
+        let [candidate]: rawChannel[] = await this.core.Query!.getRecordset(rs => rs
             .select("*")
             .from("wb_core", "channel")
             // @ts-ignore types are wrong
@@ -44,7 +44,7 @@ export class ChannelManager extends TemplateCoreModule {
     }
 
     static loadData = async () => {
-        let channels: rawChannel[] = await core.Query!.getRecordset(rs => rs
+        let channels: rawChannel[] = await ChannelManager.core.Query!.getRecordset(rs => rs
             .select("*")
             .from("wb_core", "channel")
         )
