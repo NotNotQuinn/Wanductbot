@@ -110,7 +110,7 @@ export default abstract class CommandManager extends TemplateCoreModule {
     /** Loads a command from a file path, saves, and returns it. */
     static async load (options: { filepath: string, save?: boolean }): Promise<Command> {
         const { filepath, save = true } = options;
-        let dir = path.resolve(path.join(path.resolve(await core.Config!.get("WB_PKG_DIR") as string), "commands"), filepath);
+        let dir = path.resolve(path.join(path.resolve(await this.core.Config!.get("WB_PKG_DIR") as string), "commands"), filepath);
 
         let cmdClass: typeof Command = require(dir)?.default;
         if (!cmdClass) {
@@ -126,11 +126,11 @@ export default abstract class CommandManager extends TemplateCoreModule {
 
     /** Loads all commands in the package directory, restarting fresh each time. */
     static loadData = async () => {
-        CommandManager._prefix = await core.Config?.get("COMMAND_PREFIX") as string ?? null;
+        CommandManager._prefix = await CommandManager.core.Config?.get("COMMAND_PREFIX") as string ?? null;
 
         CommandManager.data.clear();
 
-        let dir = await core.Config!.get("WB_PKG_DIR") as string;
+        let dir = await CommandManager.core.Config!.get("WB_PKG_DIR") as string;
         dir = path.join(path.resolve(dir), "commands");
         let files = await fs.readdir(dir);
 
@@ -180,10 +180,10 @@ export default abstract class CommandManager extends TemplateCoreModule {
         const command = await CommandManager.get(identifier);
         if (!command) return { success: false, reason: "Command not found.", reason_code: "no-command" };
 
-        const channel = await core.Channel!.get({ identifier: raw_channel });
+        const channel = await this.core.Channel!.get({ identifier: raw_channel });
         if (!channel) return { success: false, reason: "Channel not found.", reason_code: "no-channel" };
 
-        const user = await core.User!.get(raw_user);
+        const user = await this.core.User!.get(raw_user);
         if (!user) return { success: false, reason: "User not found.", reason_code: "no-user" };
 
         let context = new Command.Context(user, channel);

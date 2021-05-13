@@ -24,7 +24,7 @@ export default class Config extends TemplateCoreModule {
         if (typeof mem_cache_val !== "undefined") return mem_cache_val;
 
         // Check database
-        let db_values: ConfigValue[] | undefined = await core.Query?.getRecordset?.(rs=>rs
+        let db_values: ConfigValue[] | undefined = await this.core.Query?.getRecordset?.(rs=>rs
             .select("*")
             .from("wb_core", "config")
             .where("`Key` = %s", key)
@@ -59,11 +59,11 @@ export default class Config extends TemplateCoreModule {
     }
 
     static loadData = async () => {
-        if (!core.Query) {
+        if (!Config.core.Query) {
             console.trace("Config data not loaded - Query is not loaded.");
             return;
         }
-        const values: ConfigValue[] = await core.Query.getRecordset(rs => rs
+        const values: ConfigValue[] = await Config.core.Query.getRecordset(rs => rs
             .select("*")
             .from("wb_core", "config")
         );
