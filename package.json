@@ -25,6 +25,7 @@
   "homepage": "https://github.com/notnotquinn/wanductbot#readme",
   "dependencies": {
     "dank-twitch-irc": "^4.3.0",
+    "ghor": "^1.0.0",
     "node-cron": "^3.0.0",
     "supi-core-query": "github:notnotquinn/supi-core#wanduct-dependant"
   },
