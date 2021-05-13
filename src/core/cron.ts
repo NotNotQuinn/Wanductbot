@@ -104,9 +104,11 @@ export default abstract class CronManager extends TemplateCoreModule {
     static loadData = async () => {
         if (!CronManager.data.has("default")) CronManager.data.set("default", new Map());
 
-        let dir = await core.Config!.get("WB_PKG_DIR") as string;
+        let dir = await CronManager.core.Config!.get("WB_PKG_DIR") as string;
         dir = path.join(path.resolve(dir), "crons");
         let files = await fs.readdir(dir);
+
+        console.log(CronManager.core)
 
         let skipped: string[] = [];
         for (let i = 0; i < files.length; i++) {
