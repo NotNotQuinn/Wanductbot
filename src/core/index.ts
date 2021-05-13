@@ -6,6 +6,7 @@ import UserManager from './user';
 import Config from './config';
 import CommandManager from './command';
 import Channel from './channel';
+import CronManager from './cron';
 
 export default (async (options?: Options<Core>) => {
     const { whitelist, blacklist } = options ?? {};
@@ -26,12 +27,13 @@ export default (async (options?: Options<Core>) => {
 
     if (typeof core !== "object") globalThis["core"] = {};
 
-    // Order here is important. Query - Config - User - Channel - Command
+    // Order here is important. Query - Config - User - Channel - Command - Cron
     if (include("Query")) core.Query = await (await import("supi-core-query")).default();
     if (include("Config")) core.Config = await loadData(Config);
     if (include("User")) core.User = await loadData(UserManager);
     if (include("Channel")) core.Channel = await loadData(Channel);
     if (include("Command")) core.Command = await loadData(CommandManager);
+    if (include("Cron")) core.Cron = await loadData(CronManager);
 });
 
 export type Core = Partial<{
@@ -39,6 +41,7 @@ export type Core = Partial<{
     Config: typeof Config;
     User: typeof UserManager;
     Command: typeof CommandManager;
+    Cron: typeof CronManager;
     Query: sbQuery;
 }>
 
