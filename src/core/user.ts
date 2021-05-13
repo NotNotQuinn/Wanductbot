@@ -1,7 +1,7 @@
 import { sbDate } from 'supi-core-query';
 import TemplateCoreModule from './template';
 export interface rawUser {
-    /** Uniqu numeric ID */
+    /** Unique numeric ID */
     ID: number;
     /** Twitch username */
     Name: string;
@@ -12,7 +12,7 @@ export interface rawUser {
 }
 
 export class User {
-    /** Uniqu numeric ID */
+    /** Unique numeric ID */
     ID: number;
     /** Twitch username */
     Name: string;
