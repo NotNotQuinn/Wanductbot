@@ -6,7 +6,7 @@ import { Channel, ChannelIdentifier } from "./channel";
 
 
 // TODO: Move deepFreeze into seperate module/place.
-function deepFreeze (object: object) {
+export function deepFreeze (object: object) {
     const properties = Object.getOwnPropertyNames(object);
     for (const key of properties) {
         // @ts-ignore
@@ -21,10 +21,8 @@ function deepFreeze (object: object) {
 
 export abstract class Command {
     constructor() {
-        // @ts-ignore Commands rely on this - assignment to readonly property 'staticData'.
+        // @ts-ignore The types dont line up, because its hard coded to be '{}'.
         this.staticData = deepFreeze( typeof this.getStaticData === "undefined" ? {} : this.getStaticData() );
-
-        if (typeof this.data === "undefined") this.data = {};
     }
 
     /** Necessary: The name of the command. */
